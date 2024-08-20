@@ -14,12 +14,10 @@ import httpx
 import re
 import tkinter, time
 
-
-
 # file path of the query input file
 tkinter.Tk().withdraw()
 print("Opening directory explorer. You will be asked to locate the \nword file containing the queries found in the same directory \nas this script...")
-time.sleep(5)
+time.sleep(3.5)
 file_path = tkinter.filedialog.askopenfilename()
 if re.search(".docx$", file_path):
     print("Reading and opening word file...")
@@ -96,3 +94,7 @@ print(f"The average prices per queries are: \n{avg_price}\n")
 
 # Export all the data as an excel file
 df.to_excel("all_listings.xlsx", sheet_name = "Sheet1")
+
+
+# For script running in console, prompt user to press a key before the script exits successfully to allow the user to see python output
+input("Press enter to exit...")
