@@ -20,7 +20,7 @@ print("Opening directory explorer. You will be asked to locate the \nword file c
 time.sleep(3.5)
 file_path = tkinter.filedialog.askopenfilename()
 if re.search(".docx$", file_path):
-    print("Reading and opening word file...")
+    print("Reading and opening word file...\n")
     pass
 else:
     raise TypeError("Only the .docx file in the working directory of this script is allowed")
@@ -43,13 +43,13 @@ def parse_product(response: httpx.Response, url) -> dict:
     """Parse Ebay's product listing page for core product data"""
     sel = Selector(response.text) # Create a CSS selector object of class Selector
     # define helper functions that chain the extraction process
-    css_join = lambda css: "    ".join(sel.css(css).getall()).strip()  # join all CSS selected elements
+    css_join = lambda css: "\n".join(sel.css(css).getall()).strip()  # join all CSS selected elements
     item = {}
-    prices = css_join('.s-item__price>span::text').replace("C $", "").split("    ")
+    prices = css_join('.s-item__price>span::text').replace("C $", "").split("\n")
     item["url"] = [url] * len(prices)
     item["query"] = [re.search(r"(?<=nkw=).*?(?=&_sacat)", url).group()] * len(prices) # regular expressions to extract the query from the URL
     item["price"] = prices
-    item["name"] = css_join('.s-item__title>span::text').split("    ")
+    item["name"] = list(filter(("Shop on eBay").__ne__, css_join('.s-item__title>span::text').split("\n")))
     return item
 
 # create an HTML request client to pull data from each URL
@@ -75,11 +75,15 @@ with httpx.Client(headers={
 df = pd.DataFrame.from_dict(item_all, orient = 'index').transpose() # fixes the issue with all Series column object arrays not being of same length
 
 # manipulate basic dataframe for each Series column to have correct properties, excluding any observations that are incomplete or incorrect
-df = df[df["price"] != " to"]
+df = df[df["price"] != " to "]
 df = df[df["price"].notna()] # remove no price rows
-df[["url", "query"]] = df[["url", "query"]].astype(dtype = object)
-df['price'] = [re.sub(",", "", price) for price in df["price"]]
+df["url"] = df["url"].astype(str)
+df["query"] = df["query"].astype(str); df["query"] = df["query"].apply(lambda x: re.sub("\+", " ", x))
+df["price"] = [re.sub(",", "", price) for price in df["price"]]
 df["price"] = pd.to_numeric(df["price"])
+
+# Remove any rows for which the query terms are not found in the name
+#df = df[df["query"].split(), df["name"]] re.split(" ", ...)
 
 ## STATISTICS
 # Define statistics (numeric_only flag is necessary for this version of Pandas)
@@ -94,7 +98,6 @@ print(f"The average prices per queries are: \n{avg_price}\n")
 
 # Export all the data as an excel file
 df.to_excel("all_listings.xlsx", sheet_name = "Sheet1")
-
 
 # For script running in console, prompt user to press a key before the script exits successfully to allow the user to see python output
 input("Press enter to exit...")
