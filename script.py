@@ -6,14 +6,26 @@ Got help with the parsing and scraping part using https://scrapfly.io/blog/how-t
 """
 
 # import all necessary modules and specific function, with alias as required
+import tkinter.filedialog
 import docx
 import pandas as pd
 from parsel import Selector
 import httpx
 import re
+import tkinter, time
+
+
 
 # file path of the query input file
-file_path = "word-file-path"
+tkinter.Tk().withdraw()
+print("Opening directory explorer. You will be asked to locate the \nword file containing the queries found in the same directory \nas this script...")
+time.sleep(5)
+file_path = tkinter.filedialog.askopenfilename()
+if re.search(".docx$", file_path):
+    print("Reading and opening word file...")
+    pass
+else:
+    raise TypeError("Only the .docx file in the working directory of this script is allowed")
 
 # the dictionary used to collect the raw scrape data to make the pandas DataFrame object
 item_all = {}
@@ -62,7 +74,7 @@ with httpx.Client(headers={
                 item_all[key] = value
 
 # using Pandas library, turn master dictionary into a Pandas dataframe
-df = pd.DataFrame.from_dict(item_all, orient = 'index').transpose()
+df = pd.DataFrame.from_dict(item_all, orient = 'index').transpose() # fixes the issue with all Series column object arrays not being of same length
 
 # manipulate basic dataframe for each Series column to have correct properties, excluding any observations that are incomplete or incorrect
 df = df[df["price"] != " to"]
@@ -84,4 +96,3 @@ print(f"The average prices per queries are: \n{avg_price}\n")
 
 # Export all the data as an excel file
 df.to_excel("all_listings.xlsx", sheet_name = "Sheet1")
-
