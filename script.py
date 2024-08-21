@@ -6,6 +6,7 @@ Got help with the parsing and scraping part using https://scrapfly.io/blog/how-t
 """
 
 # import all necessary modules and specific function, with alias as required
+import tkinter
 import tkinter.filedialog
 import docx
 import pandas as pd
@@ -85,6 +86,10 @@ df["price"] = pd.to_numeric(df["price"])
 # Remove any rows for which the query terms are not found in the name
 #df = df[df["query"].split(), df["name"]] re.split(" ", ...)
 
+# Ask where the excel file containing the data would like to be saved
+print("Where would you like to save the excel file?")
+excel_filepath = tkinter.filedialog.askdirectory()
+
 ## STATISTICS
 # Define statistics (numeric_only flag is necessary for this version of Pandas)
 min_price = df[["query", "price"]].groupby("query").min(numeric_only = True) # minimum price
@@ -97,7 +102,7 @@ print(f"The maximum prices per queries are: \n{max_price}\n")
 print(f"The average prices per queries are: \n{avg_price}\n")
 
 # Export all the data as an excel file
-df.to_excel("all_listings.xlsx", sheet_name = "Sheet1")
+df.to_excel(f"{excel_filepath}/all_listings.xlsx", sheet_name = "Sheet1")
 
 # For script running in console, prompt user to press a key before the script exits successfully to allow the user to see python output
 input("Press enter to exit...")
