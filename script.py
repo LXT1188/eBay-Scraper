@@ -7,13 +7,12 @@ Got help with the parsing and scraping part using https://scrapfly.io/blog/how-t
 
 # import all necessary modules and specific function, with alias as required
 import tkinter
-import tkinter.filedialog
 import docx
 import pandas as pd
 from parsel import Selector
 import httpx
 import re
-import tkinter, time
+import time
 
 # file path of the query input file
 tkinter.Tk().withdraw()
