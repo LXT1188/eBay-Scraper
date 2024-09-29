@@ -6,7 +6,7 @@ Got help with the parsing and scraping part using https://scrapfly.io/blog/how-t
 """
 
 # import all necessary modules and specific function, with alias as required
-import tkinter
+import tkinter, tkinter.filedialog
 import docx
 import pandas as pd
 from parsel import Selector
@@ -23,7 +23,7 @@ if re.search(".docx$", file_path):
     print("Reading and opening word file...\n")
     pass
 else:
-    raise TypeError("Only the .docx file in the working directory of this script is allowed")
+    raise TypeError("Only a .docx file is allowed")
 
 # the dictionary used to collect the raw scrape data to make the pandas DataFrame object
 item_all = {}
@@ -86,16 +86,18 @@ df["price"] = pd.to_numeric(df["price"])
 #df = df[df["query"].split(), df["name"]] re.split(" ", ...)
 
 # Ask where the excel file containing the data would like to be saved
-print("Where would you like to save the excel file?")
+print("Where would you like to save the excel file?\n")
 excel_filepath = tkinter.filedialog.askdirectory()
 
 ## STATISTICS
 # Define statistics (numeric_only flag is necessary for this version of Pandas)
+listing_count = df.shape[0]
 min_price = df[["query", "price"]].groupby("query").min(numeric_only = True) # minimum price
 max_price = df[["query", "price"]].groupby("query").max(numeric_only = True) # maximum price
 avg_price = df[["query", "price"]].groupby("query").mean(numeric_only = True) # average price
 
 # Print the lowest, highest, and mean prices for each query
+print(f"There are {listing_count + 1} listings\n")
 print(f"The minimum prices per queries are: \n{min_price}\n")
 print(f"The maximum prices per queries are: \n{max_price}\n")
 print(f"The average prices per queries are: \n{avg_price}\n")
